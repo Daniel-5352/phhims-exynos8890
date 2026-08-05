@@ -5,3 +5,6 @@
 [submodule "app/jni/webrtc-aec3"]
 	path = app/jni/webrtc-aec3
 	url = https://github.com/ewan-xu/AEC3.git
+[submodule "apps/jni/rrnoise"]
+	path = apps/jni/rrnoise
+	url = https://github.com/amikhasenko/rnnoise.git
