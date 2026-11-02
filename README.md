@@ -10,7 +10,7 @@ This repository contains hardware-specific audio routing fixes, customized RIL h
 * **Samsung Galaxy Note FE** (`gracelte` / `SM-N935F/FD`)
    
 ### Uncompatible Devices
-**Samsung Galaxy Note 7**  (`grace` / `SM-N930F`) Due to Recalls and Network Bans
+* **Samsung Galaxy Note 7**  (`grace` / `SM-N930F`) Due to Recalls and Network Bans
 
 ### Supported ROMs
 * **LineageOS Versions:** 17.1 (Android 10) $\rightarrow$ 23.2 (Android 16)
