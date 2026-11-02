@@ -10,7 +10,7 @@ This repository contains hardware-specific audio routing fixes, customized RIL h
 * **Samsung Galaxy Note 7 FE** (`gracelte` / SM-N935F/FD)
 
 ### Supported ROMs
-* **LineageOS Versions:** 17.1 (Android 10) $\rightarrow$ 23.2 (Android 16+)
+* **LineageOS Versions:** 17.1 (Android 10) $\rightarrow$ 23.2 (Android 16)
 * **AOSP-based custom ROMs**`
 
 ### Tested Carriers
