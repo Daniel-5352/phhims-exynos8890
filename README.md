@@ -5,9 +5,9 @@ A customized fork of the open-source **PhhIms** (IMS/VoLTE framework) tailored s
 This repository contains hardware-specific audio routing fixes, customized RIL hooks, stabilize 4G/VoLTE calls on legacy Samsung Exynos chipsets.
 
 ### Compatible Devices
-* **Samsung Galaxy S7** (`herolte` / `SM-G930F/FD/`)
+* **Samsung Galaxy S7** (`herolte` / `SM-G930F/FD`)
 * **Samsung Galaxy S7 Edge** (`hero2lte` / `SM-G935F/FD`)
-* **Samsung Galaxy Note 7 FE** (`gracelte` / SM-N935F/FD)
+* **Samsung Galaxy Note FE** (`gracelte` / SM-N935F/FD)
 
 ### Supported ROMs
 * **LineageOS Versions:** 17.1 (Android 10) $\rightarrow$ 23.2 (Android 16)
