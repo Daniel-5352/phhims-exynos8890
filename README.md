@@ -1,4 +1,4 @@
-# PhhIms for Samsung Exynos 8890 (`universal8890`)
+# PhhIms for Samsung Exynos 8890 
 
 A customized fork of the open-source **PhhIms** (IMS/VoLTE framework) tailored specifically for Samsung Exynos 8890 platform devices (Galaxy S7, S7 Edge, Note 7 FE) running **LineageOS 17.1 up to LineageOS 23.2+**.
 
