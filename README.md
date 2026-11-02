@@ -14,7 +14,7 @@ This repository contains hardware-specific audio routing fixes, customized RIL h
 * **AOSP-based custom ROMs**`
 
 ### Tested Carriers
-* **Turkcell (Türkiye)** — Fully verified (Outgoing/Incoming VoLTE calls, emergency fallback, SMS over IMS, no 3G fallback drop).
+* **Turkcell (Türkiye)** — (Outgoing/Incoming VoLTE calls, no 3G fallback drop).
 
   ### Issues
    **Speakerphone**
