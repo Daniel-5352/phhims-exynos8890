@@ -20,4 +20,4 @@ This repository contains hardware-specific audio routing fixes, customized RIL h
    **Speakerphone**
 
 
-  
+Wait for Second like 10 or 7 seconds for the VoLTE, IMS to Start When you see "4G" text in the Signal bar
