@@ -57,7 +57,7 @@ private fun ServiceState.phhIwlanRegistrationForIms(): NetworkRegistrationInfo? 
 private fun ServiceState.isIwlanReadyForPhhIms(): Boolean {
     val iwlanRegistration = phhIwlanRegistrationForIms() ?: return false
 
-    val iwlanRegistered = iwlanRegistration.isNetworkRegistered
+    val iwlanRegistered = iwlanRegistration.isRegistered
 
     val iwlanRat =
         iwlanRegistration.accessNetworkTechnology == TelephonyManager.NETWORK_TYPE_IWLAN
@@ -90,7 +90,7 @@ private fun ServiceState.phhImsReadyDebug(
     val iwlanRegistration = phhIwlanRegistrationForIms()
 
     return "state=$state registeredPlmn=$registeredPlmn " +
-        "iwlanRegistered=${iwlanRegistration?.isNetworkRegistered} " +
+        "iwlanRegistered=${iwlanRegistration?.isRegistered} " +
         "iwlanRat=${iwlanRegistration?.accessNetworkTechnology}"
 }
 
@@ -178,14 +178,22 @@ class PhhMmTelFeature(
 
     protected override fun onChangeEnabledCapabilities(
         request: android.telephony.ims.feature.CapabilityChangeRequest,
-        callback: PhhMmTelFeatureProtected.CapabilityChangeCallback
+        callback: android.telephony.ims.feature.ImsFeature.CapabilityCallbackProxy
     ) {
         for (pair in request.capabilitiesToEnable) {
-            Rlog.i(
-                TAG,
-                "Enabling MMTEL capability=${pair.capability} radioTech=${pair.radioTech}"
+            Rlog.i(TAG, "Enabling MMTEL capability=${pair.capability} radioTech=${pair.radioTech}")
+            setMmTelCapabilityForRadioTech(pair.capability, pair.radioTech, true) // <-- ADD THIS
+            callback.onChangeCapabilityConfigurationError(
+                pair.capability,
+                pair.radioTech,
+                android.telephony.ims.feature.ImsFeature.CAPABILITY_SUCCESS
             )
-            setMmTelCapabilityForRadioTech(pair.capability, pair.radioTech, true)
+        }
+
+
+        for (pair in request.capabilitiesToDisable) {
+            Rlog.i(TAG, "Disabling MMTEL capability=${pair.capability} radioTech=${pair.radioTech}")
+            setMmTelCapabilityForRadioTech(pair.capability, pair.radioTech, false)
             callback.onChangeCapabilityConfigurationError(
                 pair.capability,
                 pair.radioTech,
@@ -1287,13 +1295,9 @@ sipHandler.imsFailureCallback = {
             rememberIncomingCallConnectedReporter(incomingCallId) { connectedExtras ->
                 incomingSession.reportConnected(connectedExtras)
             }
-            val frameworkCallListener = notifyIncomingCall(incomingSession, incomingSession.getCallId(), Bundle())
-            if (frameworkCallListener != null) {
-                incomingSession.setListener(frameworkCallListener)
-            } else {
-                Rlog.w(TAG, "Framework rejected incoming IMS call ${incomingSession.getCallId()}")
-                forgetIncomingCallListener(incomingCallId)
-            }
+            // notifyIncomingCall is void in API 33+; the framework sets the listener
+            // on the session via binder after accepting the call.
+            notifyIncomingCall(incomingSession, Bundle())
         }
         sipHandler.onIncomingCallConnected = { _: Object, extras: Map<String, String> ->
             val callId = extras["call-id"]?.takeIf { it.isNotBlank() }

@@ -5,6 +5,8 @@ import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.telephony.AccessNetworkConstants
+import android.telephony.NetworkRegistrationInfo
 import android.telephony.Rlog
 import android.telephony.TelephonyManager
 import android.telephony.ims.stub.ImsRegistrationImplBase.REGISTRATION_TECH_IWLAN
@@ -103,19 +105,28 @@ internal object ImsNetworkState {
             // RIL did not provide P-CSCF via LinkProperties. Try standard
             // 3GPP DNS discovery (TS 23.003 §13.2): resolve the well-known
             // IMS domain for this PLMN.
-            val dnsFallback = try {
-                InetAddress.getAllByName(
-                    "ims.mnc${mnc}.mcc${mcc}.pub.3gppnetwork.org",
-                ).firstOrNull(ipVersionPolicy::accepts)
-            } catch (t: Throwable) {
-                null
-            } ?: try {
-                InetAddress.getAllByName(
-                    "ims.mnc${mnc}.mcc${mcc}.3gppnetwork.org",
-                ).firstOrNull(ipVersionPolicy::accepts)
-            } catch (t: Throwable) {
-                null
-            } ?: android.os.SystemProperties
+            val normalizedMnc = mnc.trim().padStart(3, '0')
+            val rawMnc = mnc.trim()
+            val normalizedMcc = mcc.trim().padStart(3, '0')
+
+            val dnsCandidates = listOfNotNull(
+                "ims.mnc${normalizedMnc}.mcc${normalizedMcc}.pub.3gppnetwork.org",
+                "ims.mnc${normalizedMnc}.mcc${normalizedMcc}.3gppnetwork.org",
+                if (rawMnc != normalizedMnc) "ims.mnc${rawMnc}.mcc${normalizedMcc}.pub.3gppnetwork.org" else null,
+                if (rawMnc != normalizedMnc) "ims.mnc${rawMnc}.mcc${normalizedMcc}.3gppnetwork.org" else null,
+            )
+
+            var dnsFallback: InetAddress? = null
+            for (domain in dnsCandidates) {
+                dnsFallback = try {
+                    InetAddress.getAllByName(domain).firstOrNull(ipVersionPolicy::accepts)
+                } catch (t: Throwable) {
+                    null
+                }
+                if (dnsFallback != null) break
+            }
+
+            dnsFallback = dnsFallback ?: android.os.SystemProperties
                 .get("persist.ims.pcscf_fallback", "")
                 .takeIf { it.isNotEmpty() }
                 ?.let {
@@ -176,16 +187,35 @@ internal object ImsNetworkState {
             TelephonyManager.NETWORK_TYPE_UNKNOWN
         }
 
+        val serviceState = try {
+            telephonyManager.serviceState
+        } catch (t: Throwable) {
+            null
+        }
+
+        val psRegistrationInfo = serviceState?.getNetworkRegistrationInfo(
+            NetworkRegistrationInfo.DOMAIN_PS,
+            AccessNetworkConstants.TRANSPORT_TYPE_WWAN,
+        )
+        val psRat = psRegistrationInfo?.accessNetworkTechnology ?: TelephonyManager.NETWORK_TYPE_UNKNOWN
+        val psRegistered = psRegistrationInfo?.isRegistered == true
+
         val ready =
             dataRat == TelephonyManager.NETWORK_TYPE_LTE ||
                 dataRat == TelephonyManager.NETWORK_TYPE_NR ||
                 dataRat == TelephonyManager.NETWORK_TYPE_IWLAN ||
                 voiceRat == TelephonyManager.NETWORK_TYPE_LTE ||
-                voiceRat == TelephonyManager.NETWORK_TYPE_NR
+                voiceRat == TelephonyManager.NETWORK_TYPE_NR ||
+                (psRegistered && (
+                    psRat == TelephonyManager.NETWORK_TYPE_LTE ||
+                        psRat == TelephonyManager.NETWORK_TYPE_LTE_CA ||
+                        psRat == TelephonyManager.NETWORK_TYPE_NR
+                ))
 
         Rlog.d(
             tag,
-            "IMS network request RAT gate: data=${ratName(dataRat)} voice=${ratName(voiceRat)} ready=$ready",
+            "IMS network request RAT gate: data=${ratName(dataRat)} voice=${ratName(voiceRat)} " +
+                "psRat=${ratName(psRat)} psRegistered=$psRegistered ready=$ready",
         )
 
         return ready

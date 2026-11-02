@@ -1362,14 +1362,14 @@ fun setRequestCallback(method: SipMethod, cb: (SipRequest) -> Int) {
         )
 
         val iwlanReady = iwlanRegistration?.let { registration ->
-            registration.isNetworkRegistered &&
+            registration.isRegistered &&
                 registration.accessNetworkTechnology == TelephonyManager.NETWORK_TYPE_IWLAN
         } == true
 
         Rlog.d(
             TAG,
             "WFC Wi-Fi preferred IWLAN readiness: ready=$iwlanReady " +
-                "registered=${iwlanRegistration?.isNetworkRegistered} " +
+                "registered=${iwlanRegistration?.isRegistered} " +
                 "rat=${iwlanRegistration?.accessNetworkTechnology}",
         )
         return iwlanReady
@@ -3105,7 +3105,7 @@ fun onWfcDisabled(reason: String) {
             null
         } ?: return false
 
-        return iwlanInfo.isNetworkRegistered &&
+        return iwlanInfo.isRegistered &&
             iwlanInfo.accessNetworkTechnology == TelephonyManager.NETWORK_TYPE_IWLAN
     }
 

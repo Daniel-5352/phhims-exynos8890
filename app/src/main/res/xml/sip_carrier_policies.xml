@@ -37,6 +37,11 @@
         <string name="outgoing_pani_policy" value="REGISTRATION_ACCESS_TECH" />
     </carrier>
 
+    <!-- Turkcell Turkey: send the LTE cell identity in outgoing INVITE PANI. -->
+    <carrier mccmnc="286001" name="Turkcell Turkey">
+        <string name="outgoing_pani_policy" value="LTE_CELL_IDENTITY" />
+    </carrier>
+
     <!-- AOSP canonical carrierId 1986. -->
     <carrier mccmnc="401077" name="Tele2 Kazakhstan">
         <boolean name="kazakhstan_mobile_without_country_code" value="true" />

@@ -17,12 +17,18 @@ data class SipRegisteredIdentity(
 object SipRegisterSuccessParser {
     fun parse(response: SipResponse): SipRegisteredIdentity? {
         val lrParameterRegex = Regex("lr;[^>]*")
+        val serviceRoute = response.headers.getOrDefault("service-route", emptyList())
+        // RFC 3608: originating requests use the Service-Route verbatim.
+        // Path is for terminating requests and is not added to the route set.
         val route =
-            (response.headers.getOrDefault("service-route", emptyList()) +
-                response.headers.getOrDefault("path", emptyList()))
-                .toSet() // remove duplicates
-                .toList()
-                .map { lrParameterRegex.replace(it, "lr") }
+            if (serviceRoute.isNotEmpty()) {
+                serviceRoute.toSet().toList()
+            } else {
+                response.headers.getOrDefault("path", emptyList())
+                    .toSet()
+                    .toList()
+                    .map { lrParameterRegex.replace(it, "lr") }
+            }
 
         val associatedUris = response.headers["p-associated-uri"]
             ?.flatMap { it.split(",") }

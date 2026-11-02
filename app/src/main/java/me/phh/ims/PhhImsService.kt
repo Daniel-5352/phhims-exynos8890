@@ -9,10 +9,14 @@ import android.content.IntentFilter
 import android.os.Binder
 import android.os.SystemClock
 import android.telephony.Rlog
+import android.telephony.SubscriptionManager
+import android.telephony.TelephonyManager
 import android.telephony.ims.ImsService
+import android.telephony.ims.feature.ImsFeature
 import android.telephony.ims.feature.MmTelFeature
 import android.telephony.ims.feature.RcsFeature
 import android.telephony.ims.stub.ImsConfigImplBase
+import android.telephony.ims.stub.ImsFeatureConfiguration
 import android.telephony.ims.stub.ImsRegistrationImplBase
 
 class PhhImsService : ImsService() {
@@ -105,6 +109,51 @@ class PhhImsService : ImsService() {
                 "subscriptionId=$subscriptionId reason=$reason",
         )
         feature.onSubscriptionChangedFromService(subscriptionId)
+    }
+
+    override fun querySupportedImsFeatures(): ImsFeatureConfiguration {
+        val config = ImsFeatureConfiguration.Builder()
+        val telephonyManager = getSystemService(TelephonyManager::class.java)
+        val simCount = telephonyManager?.activeModemCount?.coerceAtLeast(1) ?: 2
+        for (slotId in 0 until simCount) {
+            config.addFeature(slotId, ImsFeature.FEATURE_MMTEL)
+        }
+        val featureConfig = config.build()
+        Rlog.d(TAG, "querySupportedImsFeatures: simCount=$simCount features=$featureConfig")
+        return featureConfig
+    }
+
+    override fun createMmTelFeature(slotId: Int): MmTelFeature {
+        val subId = SubscriptionManager.getSubscriptionId(slotId)
+        Rlog.d(TAG, "createMmTelFeature slotId=$slotId subId=$subId")
+        return createMmTelFeatureForSubscription(slotId, subId)
+    }
+
+    override fun createRcsFeature(slotId: Int): RcsFeature? {
+        Rlog.d(TAG, "createRcsFeature slotId=$slotId")
+        return null
+    }
+
+    override fun getConfig(slotId: Int): ImsConfigImplBase {
+        val subId = SubscriptionManager.getSubscriptionId(slotId)
+        Rlog.d(TAG, "getConfig slotId=$slotId subId=$subId")
+        return getConfigForSubscription(slotId, subId)
+    }
+
+    override fun getRegistration(slotId: Int): ImsRegistrationImplBase {
+        val subId = SubscriptionManager.getSubscriptionId(slotId)
+        Rlog.d(TAG, "getRegistration slotId=$slotId subId=$subId")
+        return getRegistrationForSubscription(slotId, subId)
+    }
+
+    override fun enableIms(slotId: Int) {
+        val subId = SubscriptionManager.getSubscriptionId(slotId)
+        Rlog.d(TAG, "enableIms slotId=$slotId subId=$subId")
+    }
+
+    override fun disableIms(slotId: Int) {
+        val subId = SubscriptionManager.getSubscriptionId(slotId)
+        Rlog.d(TAG, "disableIms slotId=$slotId subId=$subId")
     }
 
     override fun createMmTelFeatureForSubscription(

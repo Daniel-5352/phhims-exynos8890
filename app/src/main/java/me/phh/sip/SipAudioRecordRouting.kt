@@ -13,12 +13,25 @@ object SipAudioRecordRouting {
         context: Context,
         audioRecord: AudioRecord,
     ): AudioManager {
+        val audioManager = context.getSystemService(AudioManager::class.java)
+
+        // Check if an external headset or bluetooth communication device is present
+        val inputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
+        val headsetOrBt = inputDevices.firstOrNull {
+            it.type == AudioDeviceInfo.TYPE_WIRED_HEADSET ||
+                it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO ||
+                it.type == AudioDeviceInfo.TYPE_USB_HEADSET
+        }
+
+        if (headsetOrBt != null) {
+            audioRecord.preferredDevice = headsetOrBt
+            Rlog.d(logTag, "AudioRecord preferredDevice set to external input: type=${headsetOrBt.type} name=${headsetOrBt.productName}")
+            return audioManager
+        }
+
         // Pin capture to the built-in mic so the Samsung HAL cannot reroute it to
         // the baseband PCM path (pcmC0D110c) that produces silence for software IMS.
-        // setPreferredDevice overrides HAL source-based routing while keeping
-        // VOICE_COMMUNICATION semantics (call-mode output path stays correct).
-        val audioManager = context.getSystemService(AudioManager::class.java)
-        val builtinMic = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
+        val builtinMic = inputDevices
             .firstOrNull { it.type == AudioDeviceInfo.TYPE_BUILTIN_MIC }
         if (builtinMic != null) {
             audioRecord.preferredDevice = builtinMic

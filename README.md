@@ -4,8 +4,9 @@ Open-source SIP/IMS stack for LineageOS, based on [phhusson/ims](https://github.
 
 This fork is used as a privileged userspace `ImsService` / MmTel provider for Samsung devices where the vendor IMS stack is missing, unusable, or not practical to port to current LineageOS releases.
 
-The current tested focus is Samsung LineageOS 23.x / Android 16 bring-up across both Exynos and Qualcomm Snapdragon devices:
+The current tested focus is Samsung LineageOS bring-up across Exynos and Qualcomm Snapdragon devices:
 
+- Samsung Galaxy S7 / S7 Edge / Exynos8890 (`herolte`, `hero2lte`, `gracerlte`)
 - Samsung Galaxy S9 / S9+ / Note9 / Exynos9810 (`starlte`, `star2lte`, `crownlte`)
 - Samsung Galaxy S20 / S20+ / S20 Ultra / Exynos9830 (`x1s`, `y2s`, `z3s` family; current testing mainly `x1s`)
 - Samsung Galaxy S23 Ultra / Qualcomm Snapdragon 8 Gen 2 / SM8550 (`dm1q`)
@@ -400,6 +401,45 @@ vendor.ril.ims.                u:object_r:vendor_ims_prop:s0
 # sepolicy/vendor/sehradiomanager.te
 allow sehradiomanager vendor_ims_prop:property_service set;
 ```
+
+## Galaxy S7 / S7 Edge / Exynos8890 integration notes
+
+Galaxy S7 (`herolte`), Galaxy S7 Edge (`hero2lte`), and Galaxy Note FE (`gracerlte`) run the Samsung Exynos 8890 SoC with the integrated Shannon 335 modem. Because the device was originally launched with Android 6.0 and Samsung TouchWiz / Experience, custom ROMs (LineageOS 17.1 up to 21/22/23.x) lack Samsung's proprietary stock `imsd` daemon and standard AOSP IMS configuration out-of-the-box.
+
+### Key Requirements for Exynos 8890 / S7 ROMs:
+
+1. **System Feature Permission (`android.hardware.telephony.ims.xml`)**:
+   - Stock S7 firmware did not use AOSP IMS, so S7 device trees (`universal8890-common`) do not include `/system/etc/permissions/android.hardware.telephony.ims.xml` by default.
+   - Without this feature flag, Android telephony (`PhoneFactory` and `ImsResolver`) completely ignores IMS services and hides VoLTE/IMS settings.
+   - `PhhIms`'s `Android.bp` now automatically installs `android.hardware.telephony.ims.xml` into `etc/permissions/`.
+
+2. **Privileged Permissions (`privapp-permissions-me.phh.ims.xml`)**:
+   - `me.phh.ims` requires privileged platform telephony permissions: `android.permission.READ_PRIVILEGED_PHONE_STATE` and `android.permission.MODIFY_PHONE_STATE`.
+   - `Android.bp` now automatically installs `privapp-permissions-me.phh.ims.xml` into `etc/permissions/`.
+
+3. **Overlay & Partition Layout**:
+   - Exynos 8890 uses a legacy partition layout without a dedicated dynamic `/product` partition. `PhhImsOverlay` installs to the system overlay partition.
+   - `overlay/res/values/config.xml` defines both `config_ims_mmtel_package` (modern AOSP) and `config_ims_package` (legacy AOSP).
+
+4. **IMS APN Requirement**:
+   - Ensure the carrier APN database (`apns-conf.xml`) has an entry with `type="ims"` for your carrier (e.g. `apn="ims"` for Turkcell, Vodafone, etc.). If the IMS APN is missing, Android cannot establish the dedicated IMS PDP context.
+
+5. **Audio HAL & Microphone Routing**:
+   - Samsung's Exynos 8890 audio HAL often encounters issues with hardware preprocessing when `VOICE_COMMUNICATION` is requested. `SipAudioRecordFactory` automatically falls back to `MediaRecorder.AudioSource.MIC` if `VOICE_COMMUNICATION` fails to initialize.
+   - Telecom audio mode is set to `MODE_IN_COMMUNICATION` to ensure the audio HAL routes microphone ADC directly to Android userspace rather than the hardware baseband path.
+   - External headsets and Bluetooth SCO devices take routing precedence over built-in mic pinning.
+
+6. **P-CSCF DNS Fallback (3GPP TS 23.003)**:
+   - When Samsung RIL does not deliver P-CSCF addresses via `LinkProperties`, PhhIms performs DNS discovery against `ims.mnc<MNC>.mcc<MCC>.3gppnetwork.org`.
+   - For 2-digit MNC carriers (e.g. Turkcell 286-01), the MNC is automatically normalized and padded with leading zeros (e.g. `mnc001`) as mandated by 3GPP.
+
+Validation checklist for Galaxy S7 / Exynos 8890:
+- `android.hardware.telephony.ims.xml` is present in `/system/etc/permissions/`.
+- `*#*#4636#*#*` -> Phone Info shows VoLTE Provisioned and IMS Status.
+- IMS APN connects and allocates an IP address.
+- P-CSCF is obtained via RIL or 3GPP DNS fallback.
+- SIP registration completes (with AKA IPsec security association).
+- Voice calls connect with working two-way audio on both earpiece and loudspeaker.
 
 ## Exynos9810 integration notes
 

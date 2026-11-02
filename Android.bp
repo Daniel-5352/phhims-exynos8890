@@ -11,7 +11,6 @@ android_app {
     resource_dirs: ["app/src/main/res"],
     manifest: "app/src/main/AndroidManifest.xml",
 
-
     certificate: "platform",
     privileged: true,
     platform_apis: true,
@@ -28,7 +27,11 @@ android_app {
     ],
     use_embedded_native_libs: true,
 
-    required: ["PhhImsOverlay"],
+    required: [
+        "PhhImsOverlay",
+        "android.hardware.telephony.ims.xml",
+        "privapp-permissions-me.phh.ims.xml",
+    ],
 }
 
 // Static RRO: registers me.phh.ims as the IMS MmTel service with the Phone app
@@ -37,5 +40,16 @@ runtime_resource_overlay {
     resource_dirs: ["overlay/res"],
     manifest: "overlay/AndroidManifest.xml",
     certificate: "platform",
-    product_specific: true,
+}
+
+prebuilt_etc {
+    name: "android.hardware.telephony.ims.xml",
+    sub_dir: "permissions",
+    src: "android.hardware.telephony.ims.xml",
+}
+
+prebuilt_etc {
+    name: "privapp-permissions-me.phh.ims.xml",
+    sub_dir: "permissions",
+    src: "privapp-permissions-me.phh.ims.xml",
 }

@@ -4,17 +4,26 @@ package me.phh.sip
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.TelephonyNetworkSpecifier
+import android.telephony.SubscriptionManager
 
 object ImsNetworkRequestBuilder {
     fun buildForSubscription(subId: Int): NetworkRequest {
-        return NetworkRequest.Builder()
+        val builder = NetworkRequest.Builder()
             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
             .addCapability(NetworkCapabilities.NET_CAPABILITY_IMS)
-            .setNetworkSpecifier(
-                TelephonyNetworkSpecifier.Builder()
-                    .setSubscriptionId(subId)
-                    .build()
-            )
-            .build()
+
+        if (SubscriptionManager.isValidSubscriptionId(subId)) {
+            try {
+                builder.setNetworkSpecifier(
+                    TelephonyNetworkSpecifier.Builder()
+                        .setSubscriptionId(subId)
+                        .build()
+                )
+            } catch (t: Throwable) {
+                // If TelephonyNetworkSpecifier fails on older/custom framework, proceed without specifier
+            }
+        }
+
+        return builder.build()
     }
 }
