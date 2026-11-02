@@ -8,7 +8,7 @@ This repository contains hardware-specific audio routing fixes, customized RIL h
 * **Samsung Galaxy S7** (`herolte` / `SM-G930F/FD`)
 * **Samsung Galaxy S7 Edge** (`hero2lte` / `SM-G935F/FD`)
 * **Samsung Galaxy Note FE** (`gracelte` / `SM-N935F/FD`)
-* 
+   
 ### Uncompatible Devices
 **Samsung Galaxy Note 7**  (`grace` / `SM-N930F`) Due to Recalls and Network Bans
 
