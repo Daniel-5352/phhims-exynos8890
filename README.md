@@ -14,7 +14,7 @@ This repository contains hardware-specific audio routing fixes, customized RIL h
 
 ### Supported ROMs
 * **LineageOS Versions:** 17.1 (Android 10) $\rightarrow$ 23.2 (Android 16)
-* **AOSP-based custom ROMs**`
+* **AOSP-based custom ROMs** Android 10 $\rightarrow$ Android 16
 
 ### Tested Carriers
 * **Turkcell (Türkiye)** — (Outgoing/Incoming VoLTE calls, no 3G fallback drop).
