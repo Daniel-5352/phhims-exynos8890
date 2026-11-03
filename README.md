@@ -35,3 +35,8 @@ Wait for Second like 10 or 7 seconds for the VoLTE, IMS to Start When you see "4
 
 
 <img width="1440" height="2560" alt="Screenshot_20261102-154357_Settings" src="https://github.com/user-attachments/assets/4700b7be-ac9d-40ee-9a66-5f6cccecce89" />
+
+
+
+<img width="552" height="251" alt="Screenshot_20261102_201206" src="https://github.com/user-attachments/assets/9177130d-b01a-4809-95be-8d3019e0c49b" />
+
