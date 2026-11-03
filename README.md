@@ -21,6 +21,11 @@ This repository contains hardware-specific audio routing fixes, customized RIL h
 
 ### Issues
  * **Speakerphone**
+
+### UnTested
+* **Dual SIM**
+* **herolte** (Galaxy S7 Flat)
+* **gracelte** (Galaxy Note FE)
    
 ### What are Unavailable
 * **VoWIFI**
