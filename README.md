@@ -6,7 +6,7 @@ This repository contains hardware-specific audio routing fixes, customized RIL h
 
 ### Compatible Devices
 * **Samsung Galaxy S7** (`herolte` / `SM-G930F/FD`)
-* **Samsung Galaxy S7 Edge** (`hero2lte` / `SM-G935F/FD`)
+* **Samsung Galaxy S7 edge** (`hero2lte` / `SM-G935F/FD`)
 * **Samsung Galaxy Note FE** (`gracelte` / `SM-N935F/FD`)
    
 ### Uncompatible Devices
@@ -18,6 +18,9 @@ This repository contains hardware-specific audio routing fixes, customized RIL h
 
 ### Tested Carriers
 * **Turkcell (Türkiye)** — (Outgoing/Incoming VoLTE calls, no 3G fallback drop).
+
+### Tested Devices
+* Galaxy S7 edge LineageOS 23.2
 
 ### Issues
  * **Speakerphone**
