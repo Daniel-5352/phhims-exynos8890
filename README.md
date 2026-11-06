@@ -38,6 +38,7 @@ This repository contains hardware-specific audio routing fixes, customized RIL h
   
 Wait for Second like 10 or 7 seconds for the VoLTE, IMS to Start When you see "4G" text in the Signal bar
 
+FOR THOSE PEOPLE MAKING DUALSPEAKER MOD YOU NEED TO MODIFY THE MIXER PATHS THAT CAME WITH THIS
 
 <img width="1440" height="2560" alt="Screenshot_20261102-154357_Settings" src="https://github.com/user-attachments/assets/4700b7be-ac9d-40ee-9a66-5f6cccecce89" />
 
